@@ -1,0 +1,70 @@
+name: Autograding Tests
+'on':
+  - push
+  - repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Sanity
+        id: sanity
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Sanity
+          setup-command: npm install
+          command: npm test sanity
+          timeout: 10
+          max-score: 10
+      - name: Init
+        id: init
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Init
+          setup-command: npm install
+          command: npm test init
+          timeout: 10
+          max-score: 10
+      - name: Add
+        id: add
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Add
+          setup-command: npm install
+          command: npm test add
+          timeout: 10
+          max-score: 10
+      - name: Calc
+        id: calc
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Calc
+          setup-command: npm install
+          command: npm test calc
+          timeout: 10
+          max-score: 10
+      - name: Intersect
+        id: intersect
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Intersect
+          setup-command: npm install
+          command: npm test intersect
+          timeout: 10
+          max-score: 10
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          SANITY_RESULTS: ${{steps.sanity.outputs.result}}
+          INIT_RESULTS: ${{steps.init.outputs.result}}
+          ADD_RESULTS: ${{steps.add.outputs.result}}
+          CALC_RESULTS: ${{steps.calc.outputs.result}}
+          INTERSECT_RESULTS: ${{steps.intersect.outputs.result}}
+        with:
+          runners: sanity,init,add,calc,intersect
